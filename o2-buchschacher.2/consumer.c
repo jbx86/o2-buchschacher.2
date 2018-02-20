@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
-	fprintf(stderr, "\nconsumer running");
 	int i;
 	for (i = 0; i < argc; i++)
 		fprintf(stderr, "%s ", argv[i]);
