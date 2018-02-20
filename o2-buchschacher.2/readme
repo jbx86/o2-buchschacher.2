@@ -1,0 +1,13 @@
+This project simulates the writing of logs where multiple processes are trying to write to a single file.
+
+A 'producer' process will read from a single text file, pick up the next line of text, and put it
+in a buffer. There will 5 buffers that the producer will try to keep full and set flags to indicate
+which buffers are full. The producer can only write to buffers that are empty.
+The 'producer' process will "wake up" at random times to see if a buffer is free
+
+A 'consumer' process will also run looking for buffers to be filled and write them to the log file
+after making sure that the log file is not opened by another process.
+
+The 'main' process will fork off a 'producer' and several 'consumer' processes, preform signal
+handling, and memory allocation.  'main' takes a comandline argument for n (1-20, defaulting to 10)
+to fork off a 'producer' process and n 'consumer' process.
