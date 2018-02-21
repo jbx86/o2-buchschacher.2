@@ -5,6 +5,9 @@
 #include <unistd.h>
 
 int makeargv(const char *s, const char *delimiters, char ***argvp);
+void forkProducer(int, int);
+void forkConsumer(int, int);
+
 
 int main(int argc, char *argv[]) {
 	pid_t pid;
@@ -38,42 +41,38 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	printf("n = %d\n", n);
+
+	char buffArg[100] = "";
+	snprintf(buffArg, 100, "%d %2d %3d", n, n, n);
 
 	// Fork n processes
-	for (i = 1; i < n; i++) {
-		fprintf(stderr, "%d", i);
-		pid = fork(); //Fork proccess
-		if (pid == 0) {
-			//Execute children as producer or consumer(s)
-			if (i == 1) {
-				// Construct producer arguments
-				if (makeargv(strProd, delim, &myargv) == -1)
-					fprintf(stderr, "Failed to construct argument array\n");
-				else
-					execvp(myargv[0], &myargv[0]);
-			}
-			else {
-				// Construct consumer arguments
-				if (makeargv(strCons, delim, &myargv) == -1)
-					fprintf(stderr, "Failed to construct argument array\n");
-				else
-					execvp(myargv[0], &myargv[0]);
-			}
+	for (i = 0; i < n; i++) {
+		if ((pid = fork()) == 0) {
+			if (i == 1)
+				forkProducer(i, n);
+			else
+				forkConsumer(i, n);
 		}
-		wait();
 	}
 
-
-/*
-	//Test output of variabls
-	fprintf(stderr, "process %d executed as 'master'\n", i++);
-	fprintf(stderr, "process %d executed as 'producer'\n", i++);
-	while (i < n) {
-		fprintf(stderr, "process %d executed as 'consumer'\n", i++);	
-	}
-*/
-
-	
-
+	return 0;
 }
 
+void forkProducer(int i, int n) {
+	// Spawn off a producer with max number of children and which child it is
+	char buffArg1[100];
+	char buffArg2[100];
+	snprintf(buffArg1, 100, "%d", i);
+	snprintf(buffArg2, 100, "%d", n);
+	execlp("./producer", "producer", buffArg1, buffArg2, NULL);
+}
+
+void forkConsumer(int i, int n) {
+	// Spawn off a consumer with max number of children and which child it is
+	char buffArg1[100];
+	char buffArg2[100];
+	snprintf(buffArg1, 100, "%d", i);
+	snprintf(buffArg2, 100, "%d", n);
+	execlp("./consumer", "consumer", buffArg1, buffArg2, NULL);
+}
